@@ -396,20 +396,8 @@ document.addEventListener('DOMContentLoaded', () => {
             readFullBtn.target = '_blank';
             readFullBtn.rel = 'noopener noreferrer';
 
-            const explainBtn = document.createElement('button');
-            explainBtn.className = 'btn-explain';
-            explainBtn.innerHTML = '✨ AI';
-            explainBtn.title = 'AI Explanation';
-            explainBtn.onclick = () => {
-                currentChatArticle = article;
-                chatPanel.classList.remove('hidden');
-                addChatBubble('ai', `I'm ready to help you with: **${article.title}**. What would you like me to do?`);
-                chatInput.focus();
-            };
-
             actions.appendChild(saveBtn);
             actions.appendChild(readFullBtn);
-            actions.appendChild(explainBtn);
             content.appendChild(tag);
             content.appendChild(title);
             content.appendChild(desc);
