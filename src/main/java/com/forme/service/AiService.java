@@ -38,8 +38,8 @@ public class AiService {
             return "⚠️ AI Assistant is not configured. Please add your Gemini API key in application.properties.";
         }
 
-        // Retry up to 3 times for rate-limit errors
-        int maxRetries = 3;
+        // Retry up to 5 times for rate-limit errors
+        int maxRetries = 5;
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 String result = callGeminiApi(userMessage, articleTitle, articleDescription, lastResponse);
@@ -51,14 +51,14 @@ public class AiService {
                     System.err.println("Rate limited by Gemini (attempt " + attempt + "/" + maxRetries + "). Waiting before retry...");
                     if (attempt < maxRetries) {
                         try {
-                            // Wait 2 seconds before retry, increasing each attempt
-                            Thread.sleep(2000L * attempt);
+                            // Wait longer each time (3s, 6s, 9s...)
+                            Thread.sleep(3000L * attempt);
                         } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                             return "Sorry, the request was interrupted. Please try again.";
                         }
                     } else {
-                        return "🕐 The AI service is temporarily busy due to high usage. Please wait a moment and try again.";
+                        return "🕐 The AI service is currently at its limit for free users. Please wait about 30 seconds and try your request again.";
                     }
                 } else if (e.getStatusCode().value() == 400) {
                     System.err.println("Bad request to Gemini API: " + e.getResponseBodyAsString());
