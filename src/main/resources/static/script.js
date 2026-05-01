@@ -231,7 +231,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error('Failed to get response');
 
             const data = await response.json();
-            lastAiResponse = data.reply;
+            
+            // Only update lastAiResponse if it's not an error message
+            if (data.reply && !data.reply.includes('⚠️') && !data.reply.includes('🕐')) {
+                lastAiResponse = data.reply;
+            }
+            
             addChatBubble('ai', data.reply || 'Sorry, no response received.');
             
             // Start 5-second cooldown to prevent rate-limiting (429)
@@ -418,6 +423,22 @@ document.addEventListener('DOMContentLoaded', () => {
             saveBtn.title = isSaved ? 'Unsave' : 'Save for later';
             saveBtn.onclick = () => toggleSaveArticle(article);
 
+            const explainBtn = document.createElement('button');
+            explainBtn.className = 'btn-explain';
+            explainBtn.innerHTML = '✨ Explain';
+            explainBtn.title = 'Ask AI about this article';
+            explainBtn.onclick = () => {
+                currentChatArticle = article;
+                chatPanel.classList.remove('hidden');
+                chatInput.focus();
+                
+                // Add a welcome message about the specific article
+                addChatBubble('ai', `I'm ready to help you with: **${article.title}**. What would you like to know?`);
+                
+                // Scroll to chat
+                chatPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            };
+
             const readFullBtn = document.createElement('a');
             readFullBtn.className = 'btn-read';
             readFullBtn.innerHTML = '📖 Read';
@@ -426,6 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
             readFullBtn.rel = 'noopener noreferrer';
 
             actions.appendChild(saveBtn);
+            actions.appendChild(explainBtn);
             actions.appendChild(readFullBtn);
             content.appendChild(tag);
             content.appendChild(title);

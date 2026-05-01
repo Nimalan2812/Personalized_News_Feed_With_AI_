@@ -38,7 +38,7 @@ public class AiService {
             return "⚠️ AI Assistant is not configured. Please add your Gemini API key in application.properties.";
         }
 
-        // Retry up to 5 times for rate-limit errors
+        // Retry up to 5 times for rate-limit errors with exponential backoff
         int maxRetries = 5;
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try {
@@ -47,34 +47,38 @@ public class AiService {
                     return result;
                 }
             } catch (HttpClientErrorException e) {
-                if (e.getStatusCode().value() == 429) {
-                    System.err.println("Rate limited by Gemini (attempt " + attempt + "/" + maxRetries + "). Waiting before retry...");
+                int status = e.getStatusCode().value();
+                if (status == 429) {
+                    // Exponential backoff: 5s, 10s, 20s, 40s...
+                    long waitMillis = (long) Math.pow(2, attempt - 1) * 5000L;
+                    System.err.println("Rate limited by Gemini (attempt " + attempt + "/" + maxRetries + "). Waiting " + (waitMillis/1000) + "s before retry...");
+                    
                     if (attempt < maxRetries) {
                         try {
-                            // Wait longer each time (3s, 6s, 9s...)
-                            Thread.sleep(3000L * attempt);
+                            Thread.sleep(waitMillis);
                         } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
-                            return "Sorry, the request was interrupted. Please try again.";
+                            return "⚠️ Request interrupted. Please try again.";
                         }
                     } else {
-                        return "🕐 The AI service is currently at its limit for free users. Please wait about 30 seconds and try your request again.";
+                        return "🕐 The AI service is currently at its limit for free users. Please wait a minute and try again, or add your own API key in application.properties.";
                     }
-                } else if (e.getStatusCode().value() == 400) {
-                    System.err.println("Bad request to Gemini API: " + e.getResponseBodyAsString());
-                    return "⚠️ There was an issue with the request. Please try rephrasing your question.";
-                } else if (e.getStatusCode().value() == 403) {
-                    System.err.println("Gemini API key unauthorized: " + e.getResponseBodyAsString());
-                    return "⚠️ The API key is invalid or doesn't have permission. Please check your Gemini API key in application.properties.";
+                } else if (status == 400) {
+                    System.err.println("Bad request to Gemini API (400): " + e.getResponseBodyAsString());
+                    return "⚠️ There was an issue with the request payload. Please try again.";
+                } else if (status == 403) {
+                    System.err.println("Gemini API key unauthorized (403). Check if the key is valid and has permission.");
+                    return "⚠️ The API key is invalid or unauthorized. Please check your Gemini API key in application.properties.";
                 } else {
-                    System.err.println("Gemini API error (" + e.getStatusCode() + "): " + e.getResponseBodyAsString());
-                    return "⚠️ AI service error. Please try again later.";
+                    System.err.println("Gemini API error (" + status + "): " + e.getResponseBodyAsString());
+                    return "⚠️ AI service error (" + status + "). Please try again later.";
                 }
             } catch (HttpServerErrorException e) {
-                System.err.println("Gemini server error: " + e.getResponseBodyAsString());
-                return "⚠️ The AI service is experiencing issues. Please try again later.";
+                System.err.println("Gemini server error (5xx): " + e.getResponseBodyAsString());
+                return "⚠️ The AI service is temporarily unavailable. Please try again in a few minutes.";
             } catch (Exception e) {
-                System.err.println("Error calling Gemini API: " + e.getMessage());
+                System.err.println("Unexpected error calling Gemini API: " + e.getMessage());
+                e.printStackTrace();
                 return "⚠️ Could not connect to the AI service. Please check your internet connection.";
             }
         }
