@@ -113,6 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'explain':
                 if (currentChatArticle) {
                     message = 'Explain this news article in simple, beginner-friendly terms.';
+                } else if (lastAiResponse) {
+                    message = 'Explain your last response in even simpler terms.';
                 } else {
                     message = 'Explain the latest trending news in simple terms.';
                 }
@@ -134,6 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'summarize':
                 if (currentChatArticle) {
                     message = 'Give me a brief 3-line summary of this article.';
+                } else if (lastAiResponse) {
+                    message = 'Give me a brief summary of your last response.';
                 } else {
                     message = 'Summarize the latest trending news briefly.';
                 }
