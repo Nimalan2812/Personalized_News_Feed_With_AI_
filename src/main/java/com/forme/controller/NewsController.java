@@ -40,7 +40,8 @@ public class NewsController {
         String reply = aiService.chat(
                 request.getMessage(),
                 request.getArticleTitle(),
-                request.getArticleDescription()
+                request.getArticleDescription(),
+                request.getLastResponse()
         );
         return ResponseEntity.ok(new ChatResponse(reply));
     }

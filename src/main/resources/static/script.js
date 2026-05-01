@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let savedArticles = JSON.parse(localStorage.getItem('forme_saved')) || [];
     let showingSaved = false;
     let currentChatArticle = null; // Track article context for chat
+    let lastAiResponse = ""; // Track last AI response for context
 
     // Elements
     const topicInput = document.getElementById('topicInput');
@@ -185,7 +186,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const body = {
                 message: message,
                 articleTitle: currentChatArticle ? currentChatArticle.title : null,
-                articleDescription: currentChatArticle ? currentChatArticle.description : null
+                articleDescription: currentChatArticle ? currentChatArticle.description : null,
+                lastResponse: lastAiResponse
             };
 
             const response = await fetch('/api/chat', {
@@ -199,6 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error('Failed to get response');
 
             const data = await response.json();
+            lastAiResponse = data.reply;
             addChatBubble('ai', data.reply || 'Sorry, no response received.');
         } catch (error) {
             removeTypingIndicator();
@@ -389,8 +392,20 @@ document.addEventListener('DOMContentLoaded', () => {
             readFullBtn.target = '_blank';
             readFullBtn.rel = 'noopener noreferrer';
 
+            const explainBtn = document.createElement('button');
+            explainBtn.className = 'btn-explain';
+            explainBtn.innerHTML = '✨ AI';
+            explainBtn.title = 'AI Explanation';
+            explainBtn.onclick = () => {
+                currentChatArticle = article;
+                chatPanel.classList.remove('hidden');
+                addChatBubble('ai', `I'm ready to help you with: **${article.title}**. What would you like me to do?`);
+                chatInput.focus();
+            };
+
             actions.appendChild(saveBtn);
             actions.appendChild(readFullBtn);
+            actions.appendChild(explainBtn);
             content.appendChild(tag);
             content.appendChild(title);
             content.appendChild(desc);

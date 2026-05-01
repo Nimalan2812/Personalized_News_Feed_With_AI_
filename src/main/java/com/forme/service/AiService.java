@@ -33,7 +33,7 @@ public class AiService {
      * Returns the AI-generated text response.
      * Includes retry logic for rate-limit (429) errors.
      */
-    public String chat(String userMessage, String articleTitle, String articleDescription) {
+    public String chat(String userMessage, String articleTitle, String articleDescription, String lastResponse) {
         if ("YOUR_GEMINI_API_KEY".equals(geminiApiKey) || geminiApiKey == null || geminiApiKey.isEmpty()) {
             return "⚠️ AI Assistant is not configured. Please add your Gemini API key in application.properties.";
         }
@@ -42,7 +42,7 @@ public class AiService {
         int maxRetries = 3;
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try {
-                String result = callGeminiApi(userMessage, articleTitle, articleDescription);
+                String result = callGeminiApi(userMessage, articleTitle, articleDescription, lastResponse);
                 if (result != null) {
                     return result;
                 }
@@ -82,15 +82,16 @@ public class AiService {
         return "🕐 The AI service is temporarily busy. Please wait a moment and try again.";
     }
 
-    private String callGeminiApi(String userMessage, String articleTitle, String articleDescription) {
+    private String callGeminiApi(String userMessage, String articleTitle, String articleDescription, String lastResponse) {
         String url = geminiApiUrl + "?key=" + geminiApiKey;
 
         // Build system instruction
         String systemPrompt = "You are ForME AI Assistant — a helpful, friendly news companion. "
                 + "Your job is to help users understand news articles, explain complex topics in simple beginner-friendly language, "
                 + "and translate content when asked. "
-                + "Keep your responses concise (2-4 paragraphs max). "
-                + "Use simple words. If translating, provide only the translation without extra commentary.";
+                + "When translating, provide only the translation itself without extra conversational filler. "
+                + "If the user asks to 'translate the last response' or similar, look at the provided [Last AI Response] context. "
+                + "For Tamil translations, ensure you use modern, clear Tamil script.";
 
         // Build the user prompt with article context if available
         StringBuilder fullPrompt = new StringBuilder();
@@ -101,6 +102,11 @@ public class AiService {
                 fullPrompt.append("Description: ").append(articleDescription).append("\n");
             }
             fullPrompt.append("\n[User Question]\n");
+        }
+
+        if (lastResponse != null && !lastResponse.isEmpty()) {
+            fullPrompt.append("[Last AI Response Context]\n");
+            fullPrompt.append(lastResponse).append("\n\n");
         }
         fullPrompt.append(userMessage);
 
