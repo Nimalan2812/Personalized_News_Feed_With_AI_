@@ -183,6 +183,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typing) typing.remove();
     }
 
+    function startChatCooldown() {
+        chatInput.disabled = true;
+        chatSendBtn.disabled = true;
+        chatSendBtn.style.opacity = '0.5';
+        chatSendBtn.style.cursor = 'not-allowed';
+        
+        let timeLeft = 5;
+        const originalPlaceholder = chatInput.placeholder;
+        chatInput.placeholder = `Please wait ${timeLeft}s...`;
+
+        const timer = setInterval(() => {
+            timeLeft--;
+            if (timeLeft > 0) {
+                chatInput.placeholder = `Please wait ${timeLeft}s...`;
+            } else {
+                clearInterval(timer);
+                chatInput.disabled = false;
+                chatSendBtn.disabled = false;
+                chatSendBtn.style.opacity = '1';
+                chatSendBtn.style.cursor = 'pointer';
+                chatInput.placeholder = originalPlaceholder;
+                chatInput.focus();
+            }
+        }, 1000);
+    }
+
     async function sendToAI(message) {
         showTypingIndicator();
 
@@ -207,6 +233,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             lastAiResponse = data.reply;
             addChatBubble('ai', data.reply || 'Sorry, no response received.');
+            
+            // Start 5-second cooldown to prevent rate-limiting (429)
+            startChatCooldown();
         } catch (error) {
             removeTypingIndicator();
             addChatBubble('ai', '⚠️ Error connecting to AI. Please make sure the server is running.');
