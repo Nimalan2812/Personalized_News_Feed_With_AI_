@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForME – Personalized News Feed</title>
+    <meta name="description" content="ForME is a personalized news feed that curates trending articles based on your selected topics.">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- Base Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="logo">
+            <span class="logo-icon">📰</span> For<b>ME</b>
+        </div>
+        <div class="nav-center">
+            <div class="datetime-display" id="datetimeDisplay">
+                <!-- DateTime injected here -->
+            </div>
+        </div>
+        <div class="nav-actions">
+            <div class="theme-toggle">
+                <button id="darkModeToggle" aria-label="Toggle Dark Mode">🌙</button>
+            </div>
+            <!-- AI Chat Widget FAB moved to Navbar -->
+            <button class="chat-fab" id="chatFab" aria-label="Open AI Chat">
+                <span class="chat-fab-icon">💬</span>
+                <span class="chat-fab-pulse"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- App Layout -->
+    <div class="app-layout">
+        <!-- Sidebar - ForME Folder (Fixed Left) -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-inner">
+                <div class="folder-header">
+                    <h2>📁 My Topics</h2>
+                    <p>Your personalized folder</p>
+                </div>
+                
+                <div class="add-topic-container">
+                    <input type="text" id="topicInput" placeholder="e.g., AI, Sports..." aria-label="New Topic">
+                    <button id="addTopicBtn">Add +</button>
+                </div>
+
+                <ul id="topicList" class="topic-list">
+                    <!-- Topics injected dynamically here -->
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <button id="savedArticlesBtn" class="saved-btn">
+                    ⭐ Saved Articles
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Feed Header -->
+            <section class="news-feed">
+                <div class="feed-header">
+                    <button id="backToHomeBtn" class="back-btn hidden" aria-label="Back to Home">Back</button>
+                    <h1>Trending For You</h1>
+                    <button id="refreshFeedBtn" class="refresh-btn">🔄 Refresh</button>
+                </div>
+                
+                <!-- Loading Indicator -->
+                <div id="loader" class="loader hidden">
+                    <div class="spinner"></div>
+                    <p>Curating your topics...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="errorState" class="error-state hidden">
+                    <p>⚠️ Oops! Failed to fetch news. Please try again later.</p>
+                </div>
+
+                <!-- News Grid -->
+                <div id="newsGrid" class="news-grid">
+                    <!-- News Cards injected dynamically here -->
+                    <div class="empty-state" id="emptyState">
+                        <h3>No topics selected</h3>
+                        <p>Add some topics to your ForME Folder to get started!</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Mobile sidebar toggle -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">📁</button>
+
+
+
+    <div class="chat-panel hidden" id="chatPanel">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <span class="chat-avatar">🤖</span>
+                <div>
+                    <h3>ForME AI</h3>
+                    <span class="chat-status">Online • Powered by Gemini</span>
+                </div>
+            </div>
+            <button class="chat-close" id="chatClose" aria-label="Close Chat">✕</button>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-bubble ai">
+                <p>👋 Hi! I'm your ForME AI Assistant. Ask me anything!</p>
+            </div>
+        </div>
+
+        <div class="chat-quick-actions" id="chatQuickActions">
+            <button class="quick-btn" data-action="explain">📖 Explain Simply</button>
+            <button class="quick-btn" data-action="translate-tamil">🌐 Tamil</button>
+            <button class="quick-btn" data-action="translate-hindi">🌐 Hindi</button>
+            <button class="quick-btn" data-action="summarize">📝 Summarize</button>
+        </div>
+
+        <div class="chat-input-bar">
+            <input type="text" id="chatInput" placeholder="Ask me anything..." aria-label="Chat message">
+            <button id="chatSendBtn" aria-label="Send Message">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="script.js"></script>
+</body>
+</html>

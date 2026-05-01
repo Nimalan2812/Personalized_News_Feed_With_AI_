@@ -1,0 +1,9 @@
+server.port=8080
+
+# To use NewsAPI, get a key from https://newsapi.org/
+forme.api.news.url=https://newsapi.org/v2/everything
+forme.api.news.key=${NEWS_API_KEY:YOUR_NEWS_API_KEY_HERE}
+
+# Google Gemini AI API
+forme.api.gemini.key=${GEMINI_API_KEY:YOUR_GEMINI_API_KEY_HERE}
+forme.api.gemini.url=https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent
